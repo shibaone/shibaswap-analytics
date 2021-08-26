@@ -167,7 +167,7 @@ function BuryBonePage() {
 
   const oneDayVolume = factory.volumeUSD - factory.oneDay.volumeUSD;
 
-  const boneApr = dayDatas && (((parseFloat(dayDatas[0]?.volumeUSD) * (0.05 / 3) * 0.2) / parseFloat(bury?.totalSupply)) * 365) 
+  const boneApr = dayDatas && (((parseFloat(dayDatas[0]?.volumeUSD) * (0.05 / 3) * 0.05) / parseFloat(bury?.totalSupply)) * 365) 
   / (parseFloat(bury?.ratio) * bonePrice)
 
   const APR =
@@ -175,6 +175,10 @@ function BuryBonePage() {
     (bury.ratio * bonePrice);
 
   const APY = Math.pow(1 + boneApr / 365, 365) - 1;
+
+  const boneBoneApr = ((0.9 * parseInt(bonePrice))/(bury?.boneStakedUSD)) * 277 * 24 * 30 * 12 * 100;
+
+  const boneBoneApy = Math.pow(1 + boneBoneApr / 365, 365) - 1;
 
   return (
     <AppShell>
@@ -192,13 +196,16 @@ function BuryBonePage() {
               />
             </Grid> */}
             <Grid item xs={12} sm={6} md={3}>
-              <KPI title="APY (24h)" value={APY * 100} format="percent" />
+              <KPI title="BONE APY (24h)" value={APY * 100} format="percent" />
             </Grid>
             {/* <Grid item xs={12} sm={6} md={3}>
               <KPI title="APY (Avg)" value={averageApy} format="percent" />
             </Grid> */}
-            <Grid item xs={12} sm={6} md={3}>
+            {/* <Grid item xs={12} sm={6} md={3}>
               <KPI title="APR (24h)" value={boneApr} format="percent" />
+            </Grid> */}
+            <Grid item xs={12} sm={6} md={3}>
+              <KPI title="+ BONE APY (24h)" value={boneBoneApy * 100} format="percent" />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <KPI title="tBone" value={bury.totalSupply} format="integer" />
@@ -301,7 +308,7 @@ function BuryBonePage() {
                   height={height}
                   data={[boneStakedUSD, boneHarvestedUSD]}
                   margin={{ top: 64, right: 32, bottom: 0, left: 64 }}
-                  labels={["Bone Staked (USD)", "Bone Harvested (USD)"]}
+                  labels={["Bone Staked (USD)", "Bone Woofed (USD)"]}
                 />
               )}
             </ParentSize>

@@ -14,7 +14,8 @@ import {
   getFactory,
   getShibToken,
   tokenQuery,
-  useInterval
+  useInterval,
+  getBoneToken
 } from "app/core";
 
 import Chart from "../../components/Chart";
@@ -23,7 +24,7 @@ import { ParentSize } from "@visx/responsive";
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useQuery } from "@apollo/client";
-import {SHIB_TOKEN_ADDRESS} from "app/core/constants";
+import {SHIB_TOKEN_ADDRESS, BONE_TOKEN_ADDRESS} from "app/core/constants";
 
 const useStyles = makeStyles((theme) => ({
   charts: {
@@ -71,6 +72,12 @@ function BuryShibPage() {
     },
   });
 
+  const boneToken = useQuery(tokenQuery, {
+    variables: {
+      id: BONE_TOKEN_ADDRESS,
+    },
+  });
+
   const {
     data: { bundles },
   } = useQuery(ethPriceQuery);
@@ -90,6 +97,7 @@ function BuryShibPage() {
       getFactory,
       getShibToken,
       getEthPrice,
+      getBoneToken
     ]);
   }, 60000);
 
@@ -164,7 +172,7 @@ function BuryShibPage() {
 
   const oneDayVolume = factory.volumeUSD - factory.oneDay.volumeUSD;
 
-  const shibApr = dayDatas && (((parseFloat(dayDatas[0]?.volumeUSD) * (0.05 / 3) * 0.2) / parseFloat(bury?.totalSupply)) * 365)
+  const shibApr = dayDatas && (((parseFloat(dayDatas[0]?.volumeUSD) * (0.05 / 3) * 0.05) / parseFloat(bury?.totalSupply)) * 365)
   / (parseFloat(bury?.ratio) * shibPrice)
 
   const APR =
@@ -172,6 +180,18 @@ function BuryShibPage() {
     (bury.ratio * shibPrice);
 
   const APY = Math.pow(1 + shibApr / 365, 365) - 1;
+
+  const bonePrice =
+    parseFloat(boneToken?.data?.token?.derivedETH) * parseFloat(bundles[0].ethPrice);
+
+  const shibBoneApr = ((2.7 * parseInt(bonePrice))/(bury?.shibStakedUSD)) * 277 * 24 * 30 * 12 * 100;
+
+  const shibBoneApy = Math.pow(1 + shibBoneApr / 365, 365) - 1;
+
+  const shibEthApr = dayDatas && (((dayDatas[0]?.volumeUSD * 0.1) / bury?.totalSupply) * 365) / (bury?.ratio * shibPrice)
+
+  const shibEthAPY = Math.pow(1 + shibEthApr / 365, 365) - 1;
+
 
   return (
     <AppShell>
@@ -189,13 +209,22 @@ function BuryShibPage() {
               />
             </Grid> */}
             <Grid item xs={12} sm={6} md={3}>
-              <KPI title="APY (24h)" value={APY * 100} format="percent" />
+              <KPI title="SHIB APY (24h)" value={APY * 100} format="percent" />
             </Grid>
             {/* <Grid item xs={12} sm={6} md={3}>
               <KPI title="APY (Avg)" value={averageApy} format="percent" />
             </Grid> */}
-            <Grid item xs={12} sm={6} md={3}>
+            {/* <Grid item xs={12} sm={6} md={3}>
               <KPI title="APR (24h)" value={shibApr} format="percent" />
+            </Grid> */}
+            <Grid item xs={12} sm={6} md={3}>
+              <KPI title="+ BONE APY (24h)" value={shibBoneApy * 100} format="percent" />
+            </Grid>
+            {/* <Grid item xs={12} sm={6} md={3}>
+              <KPI title="Additional ETH APY (24h)" value={EthAPY * 100} format="percent" />
+            </Grid> */}
+            <Grid item xs={12} sm={6} md={3}>
+              <KPI title="+ ETH APY (24h)" value={shibEthAPY * 100} format="percent" />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <KPI title="xShib" value={bury.totalSupply} format="integer" />
@@ -298,7 +327,7 @@ function BuryShibPage() {
                   height={height}
                   data={[shibStakedUSD, shibHarvestedUSD]}
                   margin={{ top: 64, right: 32, bottom: 0, left: 64 }}
-                  labels={["Shib Staked (USD)", "Shib Harvested (USD)"]}
+                  labels={["Shib Staked (USD)", "Shib Woofed (USD)"]}
                 />
               )}
             </ParentSize>
@@ -366,6 +395,7 @@ export async function getStaticProps() {
   await getDayData(client);
   await getShibToken(client);
   await getEthPrice(client);
+  await getBoneToken(client);
   return {
     props: {
       initialApolloState: client.cache.extract(),

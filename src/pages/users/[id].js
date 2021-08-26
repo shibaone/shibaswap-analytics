@@ -27,6 +27,8 @@ import {
   getPairs,
   getPoolUser,
   getBoneToken,
+  getShibToken,
+  getLeashToken,
   getToken,
   getUser,
   latestBlockQuery,
@@ -37,7 +39,13 @@ import {
   tokenQuery,
   useInterval,
   userIdsQuery,
-  userQuery, buryShibUserQuery, buryLeashUserQuery, buryBoneUserQuery
+  userQuery, 
+  buryShibUserQuery, 
+  buryLeashUserQuery, 
+  buryBoneUserQuery, 
+  getBuryBoneUser,
+  getBuryShibUser,
+  getBuryLeashUser
 } from "app/core";
 import { getUnixTime, startOfMinute, startOfSecond } from "date-fns";
 
@@ -81,6 +89,7 @@ function UserPage() {
     variables: {
       id: id.toLowerCase(),
     },
+    fetchPolicy: "no-cache",
     context: {
       clientName: "buryShib",
     },
@@ -90,6 +99,7 @@ function UserPage() {
     variables: {
       id: id.toLowerCase(),
     },
+    fetchPolicy: "no-cache",
     context: {
       clientName: "buryBone",
     },
@@ -98,11 +108,12 @@ function UserPage() {
     variables: {
       id: id.toLowerCase(),
     },
+    fetchPolicy: "no-cache",
     context: {
       clientName: "buryLeash",
     },
   });
-  // console.log(barData)
+
 
   const { data: poolData } = useQuery(poolUserQuery, {
     variables: {
@@ -176,8 +187,8 @@ function UserPage() {
   const tBone = parseFloat(buryBoneData?.user?.tBone);
 
   const buryBonePending =
-    (tBone * parseFloat(buryBoneData?.user?.buries?.boneStaked)) /
-    parseFloat(buryBoneData?.user?.buries?.totalSupply);
+    (tBone * parseFloat(buryBoneData?.user?.bury?.boneStaked)) /
+    parseFloat(buryBoneData?.user?.bury?.totalSupply);
 
   const tBoneTransfered =
   buryBoneData?.user?.tBoneIn > buryBoneData?.user?.tBoneOut
@@ -209,18 +220,18 @@ function UserPage() {
       parseFloat(buryBoneData?.user?.usdIn) -
       parseFloat(buryBoneData?.user?.usdOut));
 
-  const buryBoneBlockDifference =
-    parseInt(blocksData?.blocks[0].number) -
-    parseInt(buryBoneData?.user?.createdAtBlock);
+  // const buryBoneBlockDifference =
+  //   parseInt(blocksData?.blocks[0].number) -
+  //   parseInt(buryBoneData?.user?.createdAtBlock);
 
-  const buryBoneRoiDailyBone = (buryBoneRoiBone / buryBoneBlockDifference) * 6440;
+  // const buryBoneRoiDailyBone = (buryBoneRoiBone / buryBoneBlockDifference) * 6440;
 
   // Bury Shib
   const xShib = parseFloat(buryShibData?.user?.xShib);
 
   const buryShibPending =
-    (xShib * parseFloat(buryShibData?.user?.buries?.shibStaked)) /
-    parseFloat(buryShibData?.user?.buries?.totalSupply);
+    (xShib * parseFloat(buryShibData?.user?.bury?.shibStaked)) /
+    parseFloat(buryShibData?.user?.bury?.totalSupply);
 
   const xShibTransfered =
   buryShibData?.user?.xShibIn > buryShibData?.user?.xShibOut
@@ -253,19 +264,19 @@ function UserPage() {
       parseFloat(buryShibData?.user?.usdOut));
 
 
-  const buryShibBlockDifference =
-    parseInt(blocksData?.blocks[0].number) -
-    parseInt(buryShibData?.user?.createdAtBlock);
+  // const buryShibBlockDifference =
+  //   parseInt(blocksData?.blocks[0].number) -
+  //   parseInt(buryShibData?.user?.createdAtBlock);
 
-  const buryShibRoiDailyShib = (buryShibRoiShib / buryShibBlockDifference) * 6440;
+  // const buryShibRoiDailyShib = (buryShibRoiShib / buryShibBlockDifference) * 6440;
 
 
   // Bury Leash
   const xLeash = parseFloat(buryLeashData?.user?.xLeash);
 
   const buryLeashPending =
-    (xLeash * parseFloat(buryLeashData?.user?.buries?.leashStaked)) /
-    parseFloat(buryLeashData?.user?.buries?.totalSupply);
+    (xLeash * parseFloat(buryLeashData?.user?.bury?.leashStaked)) /
+    parseFloat(buryLeashData?.user?.bury?.totalSupply);
 
   const xLeashTransfered =
   buryLeashData?.user?.xLeashIn > buryLeashData?.user?.xLeashOut
@@ -297,11 +308,11 @@ function UserPage() {
       parseFloat(buryLeashData?.user?.usdIn) -
       parseFloat(buryLeashData?.user?.usdOut));
 
-  const buryLeashBlockDifference =
-    parseInt(blocksData?.blocks[0].number) -
-    parseInt(buryLeashData?.user?.createdAtBlock);
+  // const buryLeashBlockDifference =
+  //   parseInt(blocksData?.blocks[0].number) -
+  //   parseInt(buryLeashData?.user?.createdAtBlock);
 
-  const buryLeashRoiDailyLeash = (buryLeashRoiLeash / buryLeashBlockDifference) * 6440;
+  // const buryLeashRoiDailyLeash = (buryLeashRoiLeash / buryLeashBlockDifference) * 6440;
 
   // POOLS
 
@@ -355,6 +366,10 @@ function UserPage() {
   const buryLeashInvestments =
     poolEntriesUSD + buryLeashPendingUSD + poolsPendingUSD + poolExitsUSD;
 
+  const buryShibComing = false
+  const buryLeashComing = false
+  const buryBoneComing = false
+
   return (
     <AppShell>
       <Head>
@@ -377,7 +392,12 @@ function UserPage() {
       {/*</Typography>*/}
 
       {/* Bury Bone */}
-      {!buryBoneData?.user?.buries ? (
+      {
+      buryBoneComing ? (
+        <Box mb={4}>
+          <Typography>BuryBone: Coming Soon...</Typography>
+        </Box>
+      ):!buryBoneData?.user ? (
         <Box mb={4}>
           <Typography>Address isn't in the Bury Bone...</Typography>
         </Box>
@@ -388,7 +408,7 @@ function UserPage() {
               <Grid item xs={12} sm={6} md={3}>
                 <KPI
                   title="Value"
-                  value={formatCurrency(bonePrice * buryBonePending)}
+                  value={buryBoneData?.user?.bury ? formatCurrency(bonePrice * buryBonePending): "-"}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
@@ -423,7 +443,7 @@ function UserPage() {
                     <TableCell key="pending" align="right">
                       Pending
                     </TableCell>
-                    <TableCell key="buryBoneRoiYearly" align="right">
+                    {/* <TableCell key="buryBoneRoiYearly" align="right">
                       ROI (Yearly)
                     </TableCell>
                     <TableCell key="buryBoneRoiMonthly" align="right">
@@ -431,7 +451,7 @@ function UserPage() {
                     </TableCell>
                     <TableCell key="buryBoneRoiDaily" align="right">
                       ROI (Daily)
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell key="buryBoneRoiBone" align="right">
                       ROI (All-time)
                     </TableCell>
@@ -475,11 +495,13 @@ function UserPage() {
                     </TableCell>
                     <TableCell align="right">
                       <Typography noWrap variant="body2">
-                        {Number(buryBonePending.toFixed(2)).toLocaleString()} (
-                        {formatCurrency(bonePrice * buryBonePending)})
+                        {buryBoneData?.user?.bury ? 
+                          Number(buryBonePending.toFixed(2)).toLocaleString()+" ("+formatCurrency(bonePrice * buryBonePending)+")"
+                          : "-"
+                        }
                       </Typography>
                     </TableCell>
-                    <TableCell align="right">
+                    {/* <TableCell align="right">
                       <Typography noWrap variant="body2">
                         {decimalFormatter.format(buryBoneRoiDailyBone * 365)} (
                         {formatCurrency(buryBoneRoiDailyBone * 365 * bonePrice)})
@@ -496,11 +518,13 @@ function UserPage() {
                         {decimalFormatter.format(buryBoneRoiDailyBone)} (
                         {formatCurrency(buryBoneRoiDailyBone * bonePrice)})
                       </Typography>
-                    </TableCell>
+                    </TableCell> */}
 
                     <TableCell align="right">
-                      {decimalFormatter.format(buryBoneRoiBone)} (
-                      {formatCurrency(buryBoneRoiBone * bonePrice)})
+                        {buryBoneData?.user?.bury ? 
+                          decimalFormatter.format(buryBoneRoiBone)+" ("+formatCurrency(buryBoneRoiBone * bonePrice)+")"
+                          : "-"
+                        }
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -511,7 +535,12 @@ function UserPage() {
       )}
 
       {/* Bury Shib */}
-      {!buryShibData?.user?.buries ? (
+      {
+      buryShibComing ? (
+        <Box mb={4}>
+          <Typography>BuryShib: Coming Soon...</Typography>
+        </Box>
+      ): !buryShibData?.user ? (
         <Box mb={4}>
           <Typography>Address isn't in the Bury Shib...</Typography>
         </Box>
@@ -522,7 +551,7 @@ function UserPage() {
               <Grid item xs={12} sm={6} md={3}>
                 <KPI
                   title="Value"
-                  value={formatCurrency(shibPrice * buryShibPending)}
+                  value={ buryShibData?.user?.bury ? formatCurrency(shibPrice * buryShibPending): "-"}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
@@ -557,7 +586,7 @@ function UserPage() {
                     <TableCell key="pending" align="right">
                       Pending
                     </TableCell>
-                    <TableCell key="buryShibRoiYearly" align="right">
+                    {/* <TableCell key="buryShibRoiYearly" align="right">
                       ROI (Yearly)
                     </TableCell>
                     <TableCell key="buryShibRoiMonthly" align="right">
@@ -568,7 +597,7 @@ function UserPage() {
                     </TableCell>
                     <TableCell key="buryShibRoiShib" align="right">
                       ROI (All-time)
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -609,11 +638,13 @@ function UserPage() {
                     </TableCell>
                     <TableCell align="right">
                       <Typography noWrap variant="body2">
-                        {Number(buryShibPending.toFixed(2)).toLocaleString()} (
-                        {formatCurrency(shibPrice * buryShibPending)})
+                        {buryShibData?.user?.bury ? 
+                            Number(buryShibPending.toFixed(2)).toLocaleString()+" ("+formatCurrency(shibPrice * buryShibPending)+")"
+                            : "-"
+                        }
                       </Typography>
                     </TableCell>
-                    <TableCell align="right">
+                    {/* <TableCell align="right">
                       <Typography noWrap variant="body2">
                         {decimalFormatter.format(buryShibRoiDailyShib * 365)} (
                         {formatCurrency(buryShibRoiDailyShib * 365 * shibPrice)})
@@ -630,11 +661,13 @@ function UserPage() {
                         {decimalFormatter.format(buryShibRoiDailyShib)} (
                         {formatCurrency(buryShibRoiDailyShib * shibPrice)})
                       </Typography>
-                    </TableCell>
+                    </TableCell> */}
 
                     <TableCell align="right">
-                      {decimalFormatter.format(buryShibRoiShib)} (
-                      {formatCurrency(buryShibRoiShib * shibPrice)})
+                      {buryShibData?.user?.bury ? 
+                          decimalFormatter.format(buryShibRoiShib)+" ("+formatCurrency(buryShibRoiShib * shibPrice)+")"
+                          : "-"
+                        }
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -646,7 +679,12 @@ function UserPage() {
 
       {/* Bury Leash */}
 
-      {!buryLeashData?.user?.buries ? (
+      {
+      buryLeashComing ? (
+        <Box mb={4}>
+          <Typography>BuryLeash: Coming Soon...</Typography>
+        </Box>
+      ): !buryLeashData?.user ? (
         <Box mb={4}>
           <Typography>Address isn't in the Bury Leash...</Typography>
         </Box>
@@ -657,7 +695,7 @@ function UserPage() {
               <Grid item xs={12} sm={6} md={3}>
                 <KPI
                   title="Value"
-                  value={formatCurrency(leashPrice * buryLeashPending)}
+                  value={buryLeashData?.user?.bury ? formatCurrency(leashPrice * buryLeashPending): "-"}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
@@ -692,7 +730,7 @@ function UserPage() {
                     <TableCell key="pending" align="right">
                       Pending
                     </TableCell>
-                    <TableCell key="buryLeashRoiYearly" align="right">
+                    {/* <TableCell key="buryLeashRoiYearly" align="right">
                       ROI (Yearly)
                     </TableCell>
                     <TableCell key="buryLeashRoiMonthly" align="right">
@@ -700,7 +738,7 @@ function UserPage() {
                     </TableCell>
                     <TableCell key="buryLeashRoiDaily" align="right">
                       ROI (Daily)
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell key="buryLeashRoiLeash" align="right">
                       ROI (All-time)
                     </TableCell>
@@ -744,11 +782,13 @@ function UserPage() {
                     </TableCell>
                     <TableCell align="right">
                       <Typography noWrap variant="body2">
-                        {Number(buryLeashPending.toFixed(2)).toLocaleString()} (
-                        {formatCurrency(leashPrice * buryLeashPending)})
+                        {buryLeashData?.user?.bury ? 
+                          Number(buryLeashPending.toFixed(2)).toLocaleString()+" ("+formatCurrency(leashPrice * buryLeashPending)+")"
+                          : "-"
+                        }
                       </Typography>
                     </TableCell>
-                    <TableCell align="right">
+                    {/* <TableCell align="right">
                       <Typography noWrap variant="body2">
                         {decimalFormatter.format(buryLeashRoiDailyLeash * 365)} (
                         {formatCurrency(buryLeashRoiDailyLeash * 365 * leashPrice)})
@@ -765,11 +805,13 @@ function UserPage() {
                         {decimalFormatter.format(buryLeashRoiDailyLeash)} (
                         {formatCurrency(buryLeashRoiDailyLeash * leashPrice)})
                       </Typography>
-                    </TableCell>
+                    </TableCell> */}
 
                     <TableCell align="right">
-                      {decimalFormatter.format(buryLeashRoiLeash)} (
-                      {formatCurrency(buryLeashRoiLeash * leashPrice)})
+                      {buryLeashData?.user?.bury ? 
+                          decimalFormatter.format(buryLeashRoiLeash)+" ("+formatCurrency(buryLeashRoiLeash * leashPrice)+")"
+                          : "-"
+                        }
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -972,7 +1014,15 @@ export async function getStaticProps({ params }) {
 
   await getBoneToken(client);
 
-  await getBarUser(id.toLowerCase(), client);
+  await getShibToken(client);
+
+  await getLeashToken(client);
+
+  await getBuryBoneUser(id.toLowerCase(), client);
+
+  await getBuryShibUser(id.toLowerCase(), client);
+
+  await getBuryLeashUser(id.toLowerCase(), client);
 
   await getPoolUser(id.toLowerCase(), client);
 
