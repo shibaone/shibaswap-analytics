@@ -176,7 +176,7 @@ function BuryBonePage() {
 
   const APY = Math.pow(1 + boneApr / 365, 365) - 1;
 
-  const boneBoneApr = ((0.9 * parseInt(bonePrice))/(bury?.boneStakedUSD)) * 277 * 24 * 30 * 12 * 100;
+  const boneBoneApr = ((0.9 * parseFloat(bonePrice))/(bury?.boneStakedUSD)) * 277 * 24 * 30 * 12 * 100;
 
   const boneBoneApy = Math.pow(1 + boneBoneApr / 365, 365) - 1;
 
