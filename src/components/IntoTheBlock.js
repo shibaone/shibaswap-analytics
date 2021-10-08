@@ -7,7 +7,7 @@ function IntoTheBlock({ pairAddress }) {
   useEffect(() => {
     if (window.itbWidgetInit) {
       window.itbWidgetInit({
-        apiKey: "IXlsoP7uCH5tjojovmac53V8xlOh8Qa31yOgozMG",
+        apiKey: "Mvzk4gFT149CE0ral6EHC5TjvJNUAALJ8XYdFtgK",
         options: {
           colors: {
             series: ["#FF1744"],

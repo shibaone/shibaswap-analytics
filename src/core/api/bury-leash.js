@@ -45,7 +45,7 @@ export async function getBuryLeashUser(id, client = getApollo()) {
       id,
     },
     context: {
-      clientName: "buryLeash",
+      clientName: "buryLeashUser",
     },
   });
 

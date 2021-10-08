@@ -60,8 +60,8 @@ export const buryLeashUserQuery = gql`
       leashOut
       usdIn
       usdOut
-#      createdAt
-#      createdAtBlock
+      createdAt
+      createdAtBlock
     }
   }
 `;
