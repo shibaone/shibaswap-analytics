@@ -184,7 +184,7 @@ function BuryShibPage() {
   const bonePrice =
     parseFloat(boneToken?.data?.token?.derivedETH) * parseFloat(bundles[0].ethPrice);
 
-  const shibBoneApr = ((2.7 * parseInt(bonePrice))/(bury?.shibStakedUSD)) * 277 * 24 * 30 * 12 * 100;
+  const shibBoneApr = ((2.7 * parseFloat(bonePrice))/(bury?.shibStakedUSD)) * 277 * 24 * 30 * 12 * 100;
 
   const shibBoneApy = Math.pow(1 + shibBoneApr / 365, 365) - 1;
 
