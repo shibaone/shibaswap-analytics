@@ -188,7 +188,7 @@ function BuryLeashPage() {
   const bonePrice =
     parseFloat(boneToken?.data?.token?.derivedETH) * parseFloat(bundles[0].ethPrice);
 
-  const leashBoneApr = ((0.9 * parseFloat(bonePrice))/(bury?.leashStakedUSD)) * 277 * 24 * 30 * 12 * 100;
+  const leashBoneApr = ((0.5 * parseFloat(bonePrice))/(bury?.leashStakedUSD)) * 277 * 24 * 30 * 12 * 100;
 
   const leashBoneApy = Math.pow(1 + leashBoneApr / 365, 365) - 1;
 
